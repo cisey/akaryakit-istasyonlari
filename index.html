@@ -171,7 +171,7 @@ const gitLink=x=>`https://www.google.com/maps/dir/?api=1&destination=${x[2]},${x
 
 function ciz(){
   chipYaz();
-  if(!S.konum){if(S.gorunum==='harita')haritaCiz([]);return}
+  if(!S.konum){if(S.gorunum==='harita'){$('liste').style.display='none';$('harita').style.display='block';haritaCiz([])}return}
   const l=hesapla();
   const yonVar=S.yon!=null;
   $('yonBilgi').textContent=S.mod==='once'
@@ -195,6 +195,7 @@ function ciz(){
 // Harita
 let map=null,kat=null,pin=null;
 function haritaCiz(l){
+  if(typeof L==='undefined'){$('durum').textContent='Harita kütüphanesi yüklenemedi, internet bağlantısını kontrol et.';return}
   if(!map){
     map=L.map('map').setView([39,35.2],6);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
