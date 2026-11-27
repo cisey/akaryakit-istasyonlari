@@ -18,7 +18,7 @@ Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfal�
 
 ## Kapsanan markalar
 
-Opet, Petrol Ofisi, Shell, TotalEnergies, Aytemiz, Alpet, Sunpet, M Oil, TPPD — toplam **8.047 istasyon**.
+Opet, Petrol Ofisi, Shell, TotalEnergies, Aytemiz, Alpet, Sunpet, M Oil, TPPD, Kadoil — toplam **8.461 istasyon**.
 
 ## Nasıl kullanılır?
 
@@ -35,8 +35,8 @@ Konum izni vermek istemezsen **"🗺️ Haritadan Nokta Seç"** ile haritada bir
 
 | Dosya | Açıklama |
 |---|---|
-| `index.html` | Uygulamanın kendisi. Tüm istasyon verisi bu dosyanın içine gömülüdür, başka dosya gerekmez. |
-| `istasyonlar_*.json` | Her markanın ham istasyon listesi (isim, il, adres, koordinat, LPG / şarj / market / yıkama bilgisi). |
+| `index.html` | Uygulamanın kendisi. Açılışta `istasyonlar.json` dosyasını okur. |
+| `istasyonlar.json` | Tüm markaların tek dosyada birleşik istasyon listesi (marka kodu, isim, il, ilçe, koordinat, LPG / şarj / market / yıkama bilgisi). |
 
 ## Gizlilik
 
@@ -45,7 +45,7 @@ Konum bilgin yalnızca kendi tarayıcında işlenir, hiçbir sunucuya gönderilm
 ## Bilinen sınırlar
 
 - **Fiyat bilgisi yok.** Veride akaryakıt fiyatı bulunmadığı için sıralama sadece konuma göre yapılır.
-- **Veri sabittir.** Yeni açılan veya kapanan istasyonlar otomatik yansımaz. JSON dosyaları güncellendiğinde `index.html`'in yeniden üretilmesi gerekir.
+- **Veri sabittir.** Yeni açılan veya kapanan istasyonlar otomatik yansımaz. Veriyi güncellemek için sadece `istasyonlar.json` dosyasını değiştirmen yeterli, `index.html`'e dokunmak gerekmez.
 - **Çalışma saatleri yok.** İstasyonun açık olup olmadığı bilinmez.
 - **Harita ve yazı tipi internetten yüklenir.** Bağlantı yoksa liste çalışır, harita görünümü açılmaz.
 - Konum özelliği sadece güvenli bağlantıda (`https`) çalışır; GitHub Pages bunu sağlar.
