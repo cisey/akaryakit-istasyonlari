@@ -14,6 +14,7 @@ Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfal�
 - **Yol tarifi:** Tek dokunuşla Google Haritalar'da navigasyon başlatır.
 - **Filtreler:** Marka, LPG, ⚡ şarj, 🛒 market, 🚿 yıkama ve mesafe (2 km'den "Tümü"ne). Seçimlerin sonraki açılışta hatırlanır.
 - **Harita görünümü:** İstasyonları marka renkleriyle haritada gösterir. Haritadan bir nokta seçerek o bölgenin çevresine de bakabilirsin.
+- **Çevrimdışı çalışır ve ana ekrana eklenir (PWA):** Bir kez internetle açtıktan sonra istasyon listesi telefonda saklanır. İnternet çekmeyen yerde de konumuna en yakın istasyonlar listelenir. Sayfanın üstündeki "📲 Ana ekrana ekle" düğmesiyle uygulama gibi kurulur.
 - **Açık / koyu tema.**
 
 ## Kapsanan markalar
@@ -36,6 +37,7 @@ Konum izni vermek istemezsen **"🗺️ Haritadan Nokta Seç"** ile haritada bir
 | Dosya | Açıklama |
 |---|---|
 | `index.html` | Uygulamanın kendisi. Açılışta `istasyonlar.json` dosyasını okur. |
+| `sw.js`, `manifest.webmanifest`, `icon-*.png` | Çevrimdışı çalışma ve ana ekrana ekleme için gerekli dosyalar. |
 | `istasyonlar.json` | Tüm markaların tek dosyada birleşik istasyon listesi (marka kodu, isim, il, ilçe, koordinat, LPG / şarj / market / yıkama bilgisi). |
 
 ## Gizlilik
@@ -47,7 +49,8 @@ Konum bilgin yalnızca kendi tarayıcında işlenir, hiçbir sunucuya gönderilm
 - **Fiyat bilgisi yok.** Veride akaryakıt fiyatı bulunmadığı için sıralama sadece konuma göre yapılır.
 - **Veri sabittir.** Yeni açılan veya kapanan istasyonlar otomatik yansımaz. Veriyi güncellemek için sadece `istasyonlar.json` dosyasını değiştirmen yeterli, `index.html`'e dokunmak gerekmez.
 - **Çalışma saatleri yok.** İstasyonun açık olup olmadığı bilinmez.
-- **Harita ve yazı tipi internetten yüklenir.** Bağlantı yoksa liste çalışır, harita görünümü açılmaz.
+- **Çevrimdışıyken harita karoları gelmez.** Liste çalışır, harita görünümünde zemin görüntüsü olmaz (nokta ve istasyonlar yine de görünür).
+- **İlk açılış internet ister.** Liste telefona ilk açılışta indirilir.
 - Konum özelliği sadece güvenli bağlantıda (`https`) çalışır; GitHub Pages bunu sağlar.
 
 ## Teknik not
