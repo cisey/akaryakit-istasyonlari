@@ -1,4 +1,4 @@
-# ⛽ Yakınımdaki Akaryakıt İstasyonları
+# ⛽ Yakıt & Şarj Radarı
 
 Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfalık bir web uygulaması. Yolda giderken "bana en yakın istasyon hangisi, hangisi önümde?" sorusunun cevabını verir.
 

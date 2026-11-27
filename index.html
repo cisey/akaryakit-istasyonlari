@@ -2,7 +2,7 @@
 <html lang="tr"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Local Radar · Yakınımdaki Akaryakıt</title>
+<title>Yakıt &amp; Şarj Radarı</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#0b0f17">
 <link rel="icon" href="icon-192.png">
@@ -17,7 +17,7 @@ html[data-tema="light"]{color-scheme:light;--bg:#f3f4f6;--card:#fff;--card2:#f8f
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.45;min-height:100vh;-webkit-font-smoothing:antialiased}
 .kap{max-width:680px;margin:0 auto;padding:14px 12px 56px}
-h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+h1{font-size:21px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
 .ust{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 button,select{font:inherit;color:var(--text)}
 .pill{color:var(--muted);font-size:13px;font-weight:600;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);cursor:pointer;white-space:nowrap}
@@ -65,7 +65,8 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 </head><body><div class="kap">
-<div class="ust"><h1>⛽ Yakınımdaki Akaryakıt</h1><div style="display:flex;gap:6px"><button class="pill on" id="kurBtn" style="display:none">📲 Ana ekrana ekle</button><button class="pill" id="temaBtn">☀️</button></div></div>
+<div class="ust"><h1>⛽ Yakıt &amp; Şarj Radarı</h1><button class="pill" id="temaBtn">☀️</button></div>
+<button class="pill on" id="kurBtn" style="display:none;margin-bottom:10px">📲 Ana ekrana ekle</button>
 <div class="durum" id="durum">Konumun aranıyor…</div>
 
 <div class="kart" id="baslaKart">
@@ -114,7 +115,7 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
   <div id="liste"></div>
   <div id="harita"><div id="map"></div></div>
 </div>
-<p class="foot"><a href="hakkinda.html" style="color:var(--accent);font-weight:700;text-decoration:none">ℹ️ Hakkında ve nasıl kullanılır</a><br>⛽ Local Radar · Opet, PO, Shell, Total, Aytemiz, Alpet, Sunpet, M Oil, TPPD, Kadoil · Harita © OpenStreetMap</p>
+<p class="foot"><a href="hakkinda.html" style="color:var(--accent);font-weight:700;text-decoration:none">ℹ️ Hakkında</a> · <a href="https://github.com/cisey/akaryakit-istasyonlari" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none">GitHub</a><br>Akaryakıt: Opet, PO, Shell, Total, Aytemiz, Alpet, Sunpet, M Oil, TPPD, Kadoil · Şarj: 170 ağ · Harita © OpenStreetMap</p>
 </div>
 <script>
 const BR=[["Opet", "#2563eb"], ["Petrol Ofisi", "#dc2626"], ["Shell", "#eab308"], ["Total", "#f43f5e"], ["Aytemiz", "#16a34a"], ["Alpet", "#0891b2"], ["Sunpet", "#f97316"], ["M Oil", "#8b5cf6"], ["TPPD", "#64748b"], ["Kadoil", "#14b8a6"]];
