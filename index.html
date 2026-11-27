@@ -56,10 +56,14 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
 .foot{color:var(--muted);font-size:11.5px;margin-top:24px;text-align:center}
 .inp{flex:1;min-width:140px;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card2);color:var(--text);outline:none}
 .uyr{background:rgba(251,191,36,.13);color:var(--text)}
+#modSeg button{font-size:12.5px;padding:10px 2px;white-space:nowrap}
 .yon{font-size:12.5px;color:var(--muted);margin:0 2px 10px}
 </style>
 <script>try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.documentElement.dataset.tema=t}catch(e){}</script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 </head><body><div class="kap">
 <div class="ust"><h1>⛽ Yakınımdaki Akaryakıt</h1><div style="display:flex;gap:6px"><button class="pill on" id="kurBtn" style="display:none">📲 Ana ekrana ekle</button><button class="pill" id="temaBtn">☀️</button></div></div>
 <div class="durum" id="durum">Konumun aranıyor…</div>
@@ -70,14 +74,21 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
     <button class="ana" id="konumBtn">📍 Canlı Konumumu Kullan</button>
     <button class="ikinci" id="haritaSecBtn">🗺️ Haritadan Nokta Seç</button>
     <button class="ikinci" id="rotaAcBtn">🛣️ Güzergâh Planla</button>
+    <button class="ikinci" id="kesfetAcBtn">🔍 İl / İlçe Keşfet</button>
   </div>
 </div>
 
 <div id="sonuc" style="display:none">
   <div class="seg" id="modSeg">
-    <button data-m="yakin" class="on">📍 Çevremde</button>
+    <button data-m="yakin" class="on">📍 Yakın</button>
     <button data-m="once">🧭 Önümde</button>
     <button data-m="rota">🛣️ Güzergâh</button>
+    <button data-m="kesfet">🔍 Keşfet</button>
+  </div>
+  <div class="kart" id="kesfetPanel" style="display:none">
+    <input class="inp" id="kAra" type="search" placeholder="🔍 İstasyon, il, ilçe veya marka ara…" style="width:100%;margin-bottom:8px">
+    <div class="btns"><select class="inp" id="kIl"><option value="">Tüm iller</option></select><select class="inp" id="kIlce" disabled><option value="">Tüm ilçeler</option></select></div>
+    <div class="yon" id="kBilgi" style="margin:8px 0 0"></div>
   </div>
   <div class="kart" id="rotaPanel" style="display:none">
     <div class="btns" style="margin-bottom:8px"><input class="inp" id="rNe" placeholder="Nereden (boş = konumum)"><input class="inp" id="rNr" placeholder="Nereye (şehir veya ilçe)"></div>
@@ -120,9 +131,11 @@ const ilceTemiz=s=>bas(String(s||'').replace(/\(.*?\)/g,'').replace(/\s+MERKEZ$/
 function veriYukle(){
   return fetch('istasyonlar.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error();return r.json()}).then(j=>{
     D=j.filter(x=>KOD[x.m]!=null&&isFinite(x.e)&&isFinite(x.b)).map(x=>[KOD[x.m],kisalt(x.n,x.m==='KA'),x.e,x.b,(x.f||[]).reduce((a,k)=>a|(FB[k]||0),0),ilceTemiz(x.ic),bas(x.il||'')]);
+    D.forEach(x=>{x[7]=fold(x[1]+' '+x[5]+' '+x[6]+' '+BR[x[0]][0])});
   });
 }
 const $=id=>document.getElementById(id);
+const fold=s=>String(s||'').replace(/İ/g,'i').replace(/I/g,'i').toLowerCase().replace(/ı/g,'i').replace(/ç/g,'c').replace(/ğ/g,'g').replace(/ö/g,'o').replace(/ş/g,'s').replace(/ü/g,'u').replace(/[^a-z0-9]+/g,' ').trim();
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rad=x=>x*Math.PI/180, deg=x=>x*180/Math.PI;
 function km(a,b,c,d){const dl=rad(c-a),dg=rad(d-b),h=Math.sin(dl/2)**2+Math.cos(rad(a))*Math.cos(rad(c))*Math.sin(dg/2)**2;return 12742*Math.asin(Math.sqrt(h))}
@@ -137,7 +150,7 @@ function kaydet(){try{localStorage.setItem('akaryakit',JSON.stringify({markalar:
 $('temaBtn').onclick=()=>{const d=document.documentElement;d.dataset.tema=(d.dataset.tema||'dark')==='dark'?'light':'dark';try{localStorage.setItem('tema',d.dataset.tema)}catch(e){}};
 
 // Marka çipleri
-function temizle(){S.markalar.clear();S.oz=0;S.cap=15;S.adet=30;kaydet();if(S.mod==='rota')rotaHesapla();ciz()}
+function temizle(){$('kAra').value='';$('kIl').value='';ilceDoldur();S.markalar.clear();S.oz=0;S.cap=15;S.adet=30;kaydet();if(S.mod==='rota')rotaHesapla();ciz()}
 $('temizleBtn').onclick=temizle;
 $('filtreBtn').onclick=()=>{const k=$('filtreKutu');k.style.display=k.style.display==='none'?'':'none'};
 function chipYaz(){
@@ -165,7 +178,7 @@ function konumGeldi(pos){
   S.hiz=c.speed!=null&&!isNaN(c.speed)?c.speed*3.6:null;
   S.konum=yeni;S.secimModu=false;
   $('baslaKart').style.display='none';$('sonuc').style.display='';
-  const t=Date.now();if(t-S.son>1500||!S.ilk){S.son=t;S.ilk=1;ciz()}
+  const t=Date.now();if(t-S.son>1500||!S.ilk){S.son=t;S.ilk=1;ciz(true)}
 }
 function konumIste(){
   if(!navigator.geolocation){$('durum').textContent='Bu tarayıcı konumu desteklemiyor.';return}
@@ -203,10 +216,11 @@ function yonYazi(r){if(r==null)return'';const a=Math.abs(r);return a<=50?'önün
 function ok(r){return`<svg viewBox="0 0 24 24" style="transform:rotate(${r}deg)"><path d="M12 2 L19 21 L12 17 L5 21 Z" fill="var(--accent)"/></svg>`}
 const gitLink=x=>`https://www.google.com/maps/dir/?api=1&destination=${x[2]},${x[3]}&travelmode=driving`;
 
-function ciz(){
+function ciz(gps){
   chipYaz();
-  $('rotaPanel').style.display=S.mod==='rota'?'':'none';$('capChips').style.display=S.mod==='rota'?'none':'';
+  $('rotaPanel').style.display=S.mod==='rota'?'':'none';$('kesfetPanel').style.display=S.mod==='kesfet'?'':'none';$('capChips').style.display=(S.mod==='rota'||S.mod==='kesfet')?'none':'';
   if(S.mod==='rota'){rotaCiz();return}
+  if(S.mod==='kesfet'){kesfetCiz(gps);return}
   if(!S.konum){if(S.gorunum==='harita'){$('liste').style.display='none';$('harita').style.display='block';haritaCiz([])}return}
   const l=hesapla();
   const yonVar=S.yon!=null;
@@ -331,6 +345,64 @@ $('rotaBtn').onclick=rotaBul;
 $('koridorChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;R.koridor=+b.dataset.k;document.querySelectorAll('#koridorChips button').forEach(x=>x.classList.toggle('on',x===b));rotaHesapla();ciz()};
 $('rotaAcBtn').onclick=()=>{$('baslaKart').style.display='none';$('sonuc').style.display='';S.mod='rota';document.querySelectorAll('#modSeg button').forEach(x=>x.classList.toggle('on',x.dataset.m==='rota'));ciz()};
 
+// ---- Keşfet (il / ilçe / arama) ----
+function kesfetHazirla(){
+  const iller=[...new Set(D.map(x=>x[6]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
+  $('kIl').innerHTML='<option value="">Tüm iller ('+iller.length+')</option>'+iller.map(i=>`<option value="${esc(i)}">${esc(i)}</option>`).join('');
+}
+function ilceDoldur(){
+  const il=$('kIl').value,s=$('kIlce');
+  if(!il){s.innerHTML='<option value="">Tüm ilçeler</option>';s.disabled=true;return}
+  const l=[...new Set(D.filter(x=>x[6]===il&&x[5]).map(x=>x[5]))].sort((a,b)=>a.localeCompare(b,'tr'));
+  s.innerHTML='<option value="">Tüm ilçeler ('+l.length+')</option>'+l.map(i=>`<option value="${esc(i)}">${esc(i)}</option>`).join('');s.disabled=false;
+}
+function kesfetHesapla(){
+  const il=$('kIl').value,ic=$('kIlce').value,q=fold($('kAra').value).split(' ').filter(Boolean),k=S.konum,o=[];
+  for(const x of D){
+    if(il&&x[6]!==il)continue;if(ic&&x[5]!==ic)continue;
+    if(S.markalar.size&&!S.markalar.has(x[0]))continue;
+    if(S.oz&&(x[4]&S.oz)!==S.oz)continue;
+    if(q.length&&!q.every(w=>x[7].includes(w)))continue;
+    o.push({x,d:k?km(k.lat,k.lon,x[2],x[3]):null});
+  }
+  if(k)o.sort((a,b)=>a.d-b.d);else o.sort((a,b)=>a.x[6].localeCompare(b.x[6],'tr')||a.x[5].localeCompare(b.x[5],'tr')||a.x[1].localeCompare(b.x[1],'tr'));
+  return o;
+}
+function kesfetCiz(gps){
+  if(gps&&S.gorunum==='harita')return;
+  $('yonBilgi').textContent='';
+  const l=kesfetHesapla(),c=[0,0,0,0];
+  l.forEach(o=>{const f=o.x[4];if(f&1)c[0]++;if(f&2)c[1]++;if(f&4)c[2]++;if(f&8)c[3]++});
+  $('durum').textContent=`🔍 ${l.length.toLocaleString('tr')} istasyon${S.konum?' · konumuna göre sıralı':''}`;
+  $('kBilgi').textContent=`LPG ${c[0]} · ⚡ Şarj ${c[1]} · 🛒 Market ${c[2]} · 🚿 Yıkama ${c[3]}`;
+  if(S.gorunum==='harita'){$('liste').style.display='none';$('harita').style.display='block';kesfetHaritaCiz(l);return}
+  $('harita').style.display='none';$('liste').style.display='';
+  if(!l.length){$('liste').innerHTML='<div class="liste"><p class="bos">Bu aramada istasyon yok.</p><div class="btns" style="padding:0 16px 16px"><button class="ana" id="bosTemizle">✕ Filtreleri temizle</button></div></div>';$('bosTemizle').onclick=temizle;return}
+  let h='<div class="liste">'+l.slice(0,S.adet).map(o=>{
+    const x=o.x,b=BR[x[0]],ozl=[x[4]&1?'LPG':'',x[4]&2?'⚡':'',x[4]&4?'🛒':'',x[4]&8?'🚿':''].filter(Boolean).join(' ');
+    return`<div class="row">${o.d!=null?`<div class="ok"><b>${mesafe(o.d)}</b></div>`:''}
+    <div class="body"><div class="nm">${esc(x[1])}</div><div class="meta"><span class="br" style="background:${b[1]}">${b[0]}</span><span>${esc([x[5],x[6]].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', '))}</span>${ozl?`<span class="tag">${ozl}</span>`:''}</div></div>
+    <a class="git" href="${gitLink(x)}" target="_blank" rel="noopener">Yol tarifi</a></div>`}).join('')+'</div>';
+  if(l.length>S.adet)h+=`<button class="daha" id="dahaBtn">Daha fazla göster (${(l.length-S.adet).toLocaleString('tr')})</button>`;
+  $('liste').innerHTML=h;const db=$('dahaBtn');if(db)db.onclick=()=>{S.adet+=60;ciz()};
+}
+let kume=null;
+function kesfetHaritaCiz(l){
+  haritaCiz([]);if(!map)return;
+  if(kume)map.removeLayer(kume);
+  const kumeli=typeof L.markerClusterGroup==='function',liste=kumeli?l:l.slice(0,400);
+  kume=kumeli?L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:50}):L.layerGroup();
+  const ms=liste.map(o=>L.circleMarker([o.x[2],o.x[3]],{radius:7,weight:2,color:'#fff',fillColor:BR[o.x[0]][1],fillOpacity:.95,bubblingMouseEvents:false}).bindPopup(`<b>${esc(o.x[1])}</b><br>${BR[o.x[0]][0]} · ${esc([o.x[5],o.x[6]].filter(Boolean).join(', '))}${o.d!=null?' · <b>'+mesafe(o.d)+'</b>':''}<br><a href="${gitLink(o.x)}" target="_blank" rel="noopener">Yol tarifi →</a>`));
+  if(kumeli)kume.addLayers(ms);else ms.forEach(m=>kume.addLayer(m));
+  map.addLayer(kume);
+  if(liste.length)map.fitBounds(L.latLngBounds(liste.map(o=>[o.x[2],o.x[3]])).pad(.1),{maxZoom:14});
+}
+['kAra'].forEach(i=>$(i).addEventListener('input',()=>{S.adet=40;clearTimeout(kesfetZ);kesfetZ=setTimeout(ciz,180)}));
+let kesfetZ=null;
+$('kIl').onchange=()=>{ilceDoldur();S.adet=40;ciz()};
+$('kIlce').onchange=()=>{S.adet=40;ciz()};
+$('kesfetAcBtn').onclick=()=>{$('baslaKart').style.display='none';$('sonuc').style.display='';S.mod='kesfet';document.querySelectorAll('#modSeg button').forEach(x=>x.classList.toggle('on',x.dataset.m==='kesfet'));ciz()};
+
 // Harita
 let map=null,kat=null,pin=null;
 function haritaCiz(l){
@@ -338,12 +410,13 @@ function haritaCiz(l){
   if(!map){
     map=L.map('map').setView([39,35.2],6);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
-    map.on('click',e=>{if(!S.secimModu&&S.izle!=null)return;S.konum={lat:e.latlng.lat,lon:e.latlng.lng};S.yon=null;S.hiz=null;S.ilk=0;ciz()});
+    map.on('click',e=>{if(S.mod==='rota'||S.mod==='kesfet')return;if(!S.secimModu&&S.izle!=null)return;S.konum={lat:e.latlng.lat,lon:e.latlng.lng};S.yon=null;S.hiz=null;S.ilk=0;ciz()});
   }
   setTimeout(()=>map.invalidateSize(),60);
+  if(kume&&S.mod!=='kesfet'){map.removeLayer(kume);kume=null}
   if(kat)map.removeLayer(kat);if(pin)map.removeLayer(pin);
   if(S.konum)pin=L.circleMarker([S.konum.lat,S.konum.lon],{radius:9,weight:3,color:'#fff',fillColor:'#f43f5e',fillOpacity:1}).addTo(map);
-  const ogeler=l.map(o=>L.circleMarker([o.x[2],o.x[3]],{radius:7,weight:2,color:'#fff',fillColor:BR[o.x[0]][1],fillOpacity:.95}).bindPopup(`<b>${esc(o.x[1])}</b><br>${BR[o.x[0]][0]} · <b>${mesafe(o.d)}</b><br><a href="${gitLink(o.x)}" target="_blank" rel="noopener">Yol tarifi →</a>`));
+  const ogeler=l.map(o=>L.circleMarker([o.x[2],o.x[3]],{radius:7,weight:2,color:'#fff',fillColor:BR[o.x[0]][1],fillOpacity:.95,bubblingMouseEvents:false}).bindPopup(`<b>${esc(o.x[1])}</b><br>${BR[o.x[0]][0]} · <b>${mesafe(o.d)}</b><br><a href="${gitLink(o.x)}" target="_blank" rel="noopener">Yol tarifi →</a>`));
   if(S.mod==='rota'&&R.pts)ogeler.push(L.polyline(R.pts,{color:'#38bdf8',weight:4,opacity:.85}));
   kat=L.featureGroup(ogeler).addTo(map);
   if(l.length||(S.mod==='rota'&&R.pts)){const b=kat.getBounds();if(S.konum)b.extend([S.konum.lat,S.konum.lon]);map.fitBounds(b.pad(.15),{maxZoom:15})}
@@ -359,6 +432,7 @@ chipYaz();
 $('durum').textContent='İstasyon listesi yükleniyor…';
 veriYukle().then(()=>{
   $('durum').textContent=D.length.toLocaleString('tr')+' istasyon hazır.';
+  kesfetHazirla();
   if(new URLSearchParams(location.search).get('mod')==='konum')konumIste();
   if(S.konum)ciz();
 }).catch(()=>{$('durum').textContent='İstasyon listesi yüklenemedi (istasyonlar.json). İnternet yoksa önce bir kez bağlantıyla açman gerekir.'});

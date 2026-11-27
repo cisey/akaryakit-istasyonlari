@@ -7,9 +7,10 @@ Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfal�
 ## Ne yapar?
 
 - **Canlı konum takibi:** Konumun sürekli izlenir, liste ilerledikçe kendini günceller.
-- **📍 Çevremde:** İstasyonları mesafeye göre, en yakından başlayarak sıralar.
+- **📍 Yakın:** İstasyonları mesafeye göre, en yakından başlayarak sıralar.
 - **🧭 Önümde:** Gittiğin yönü algılar, sadece önünde kalan istasyonları gösterir. Yön, yaklaşık 30 metre ilerleyince bulunur.
 - **🛣️ Güzergâh (yol üstü radar):** Nereye gideceğini yaz, yolun ±1/2/3 km'sindeki istasyonları sırayla ve "kaç km ileride" bilgisiyle listeler. Yolun sağında mı solunda mı olduğunu da yazar. Marka veya özellik seçersen (örneğin sadece LPG), o özelliğin 60 km'den uzun süre bulunmadığı yerleri ⚠️ ile uyarır. Konum açıksa geçtiğin istasyonlar listeden düşer.
+- **🔍 Keşfet:** Konumdan bağımsız arama. İl ve ilçe seç, istasyon adı/il/ilçe/marka yaz; marka ve özellik filtreleriyle birlikte çalışır. Seçime uyan LPG / şarj / market / yıkama sayısını gösterir. Harita görünümü istasyonları kümeleyerek (yakınlaştırdıkça açılır) tüm Türkiye'yi gösterir.
 - **Yön oku:** Her istasyonun yanındaki ok, istasyonun sana göre nerede kaldığını gösterir (önünde, sağında, solunda, arkanda).
 - **Tahmini varış:** Hızın 10 km/s'in üzerindeyse istasyona kaç dakikada varacağını yazar.
 - **Yol tarifi:** Tek dokunuşla Google Haritalar'da navigasyon başlatır.
