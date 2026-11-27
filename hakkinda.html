@@ -36,13 +36,15 @@ a{color:var(--accent)}
 <li><strong>Yön oku:</strong> Her istasyonun yanındaki ok, istasyonun sana göre nerede kaldığını gösterir (önünde, sağında, solunda, arkanda).</li>
 <li><strong>Tahmini varış:</strong> Hızın 10 km/s'in üzerindeyse istasyona kaç dakikada varacağını yazar.</li>
 <li><strong>Yol tarifi:</strong> Tek dokunuşla Google Haritalar'da navigasyon başlatır.</li>
+<li><strong>⚡ Şarj istasyonları:</strong> Akaryakıt istasyonlarının yanında 170 şarj ağının (ZES, Eşarj, Trugo, WAT, Voltrun…) yaklaşık 8.500 şarj noktası da var. Filtrelerdeki "⛽ Akaryakıt / ⚡ Şarj istasyonları / Hepsi" seçimiyle hangisini görmek istediğini seçersin (varsayılan akaryakıt). Şarj seçilince "şarj ağı" listesinden tek bir ağı süzebilirsin. Veride varsa DC / AC, kW bilgisi ve ağın ücret sayfasına bağlantı görünür. Güzergâh modunda da çalışır: örneğin "Ankara'ya kadar şarj yok" uyarısı alırsın.</li>
 <li><strong>Filtreler:</strong> Marka, LPG, ⚡ şarj, 🛒 market, 🚿 yıkama ve mesafe (2 km'den "Tümü"ne). Seçimlerin sonraki açılışta hatırlanır.</li>
 <li><strong>Harita görünümü:</strong> İstasyonları marka renkleriyle haritada gösterir. Haritadan bir nokta seçerek o bölgenin çevresine de bakabilirsin.</li>
 <li><strong>Çevrimdışı çalışır ve ana ekrana eklenir (PWA):</strong> Bir kez internetle açtıktan sonra istasyon listesi telefonda saklanır. İnternet çekmeyen yerde de konumuna en yakın istasyonlar listelenir. Sayfanın üstündeki "📲 Ana ekrana ekle" düğmesiyle uygulama gibi kurulur.</li>
 <li><strong>Açık / koyu tema.</strong></li>
 </ul>
 <h2>Kapsanan markalar</h2>
-<p>Opet, Petrol Ofisi, Shell, TotalEnergies, Aytemiz, Alpet, Sunpet, M Oil, TPPD, Kadoil — toplam <strong>8.461 istasyon</strong>.</p>
+<p>Akaryakıt: Opet, Petrol Ofisi, Shell, TotalEnergies, Aytemiz, Alpet, Sunpet, M Oil, TPPD, Kadoil — <strong>8.461 istasyon</strong>.</p>
+<p>Şarj: 170 şarj ağı (ZES, Eşarj, Trugo, WAT, Voltrun, Sharz.net, Astor ve diğerleri) — <strong>8.536 şarj noktası</strong>.</p>
 <h2>Nasıl kullanılır?</h2>
 <ol>
 <li>Siteyi aç, <strong>"📍 Canlı Konumumu Kullan"</strong> düğmesine dokun.</li>
@@ -58,8 +60,9 @@ a{color:var(--accent)}
 <p>Konum bilgin yalnızca kendi tarayıcında işlenir, hiçbir sunucuya gönderilmez ve kaydedilmez. Tarayıcıda sadece tema, seçili marka ve mesafe tercihin saklanır.</p>
 <h2>Bilinen sınırlar</h2>
 <ul>
+<li><strong>Şarj verisi eksik olabilir.</strong> Şarj noktalarının bir kısmında güç (kW) ve soket tipi bilinmiyor. Aynı yerdeki tekrar kayıtlar teke indirildi, hatalı koordinatlı kayıtlar silindi.</li>
 <li><strong>Fiyat bilgisi yok.</strong> Veride akaryakıt fiyatı bulunmadığı için sıralama sadece konuma göre yapılır.</li>
-<li><strong>Veri sabittir.</strong> Yeni açılan veya kapanan istasyonlar otomatik yansımaz. Veriyi güncellemek için sadece <code>istasyonlar.json</code> dosyasını değiştirmen yeterli, <code>index.html</code>'e dokunmak gerekmez.</li>
+<li><strong>Veri sabittir.</strong> Yeni açılan veya kapanan istasyonlar otomatik yansımaz. Veriyi güncellemek için sadece <code>tum_istasyonlar_birlesik.json</code> dosyasını değiştirmen yeterli, <code>index.html</code>'e dokunmak gerekmez.</li>
 <li><strong>Çalışma saatleri yok.</strong> İstasyonun açık olup olmadığı bilinmez.</li>
 <li><strong>Çevrimdışıyken harita karoları gelmez.</strong> Liste çalışır, harita görünümünde zemin görüntüsü olmaz (nokta ve istasyonlar yine de görünür).</li>
 <li><strong>Güzergâh için internet gerekir.</strong> Yol çizgisi OSRM, yer arama OpenStreetMap Nominatim servisinden alınır. İkisi de ücretsiz ve kişisel kullanıma uygundur, ama çok yoğun kullanımda sınır koyabilirler.</li>

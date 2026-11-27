@@ -100,6 +100,8 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
   <button class="pill" id="filtreBtn" style="margin-bottom:10px">⚙️ Filtreler</button>
   <div id="filtreKutu" style="display:none">
   <button class="pill" id="temizleBtn" style="margin-bottom:8px">✕ Filtreleri temizle</button>
+  <div class="chips" id="turChips"><button data-t="hepsi">Hepsi</button><button data-t="yakit">⛽ Akaryakıt</button><button data-t="sarj">⚡ Şarj istasyonları</button></div>
+  <select class="inp" id="agSel" style="display:none;width:100%;margin-bottom:8px"><option value="-1">Tüm şarj ağları</option></select>
   <div class="chips" id="markaChips"></div>
   <div class="chips" id="ozChips">
     <button data-o="1">LPG</button><button data-o="2">⚡ Şarj</button><button data-o="4">🛒 Market</button><button data-o="8">🚿 Yıkama</button>
@@ -117,7 +119,8 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
 <script>
 const BR=[["Opet", "#2563eb"], ["Petrol Ofisi", "#dc2626"], ["Shell", "#eab308"], ["Total", "#f43f5e"], ["Aytemiz", "#16a34a"], ["Alpet", "#0891b2"], ["Sunpet", "#f97316"], ["M Oil", "#8b5cf6"], ["TPPD", "#64748b"], ["Kadoil", "#14b8a6"]];
 let D=[];
-const KOD={OP:0,PO:1,SH:2,TO:3,AY:4,AL:5,SU:6,MO:7,TP:8,KA:9},FB={lpg:1,sarj:2,market:4,yikama:8};
+const KOD={OP:0,PO:1,SH:2,TO:3,AY:4,AL:5,SU:6,MO:7,TP:8,KA:9},FB={lpg:1,sarj:2,market:4,yikama:8,ac:32,dc:16},FN=10;
+const opIdx=new Map();
 const bas=s=>s.toLocaleLowerCase('tr').replace(/(^|[ .\-\/(])(\p{L})/gu,(m,a,b)=>a+b.toLocaleUpperCase('tr'));
 function kisalt(s,ascii){
   s=String(s||'').replace(/\s+/g,' ').trim();
@@ -129,8 +132,14 @@ function kisalt(s,ascii){
 }
 const ilceTemiz=s=>bas(String(s||'').replace(/\(.*?\)/g,'').replace(/\s+MERKEZ$/i,' Merkez').trim());
 function veriYukle(){
-  return fetch('istasyonlar.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error();return r.json()}).then(j=>{
-    D=j.filter(x=>KOD[x.m]!=null&&isFinite(x.e)&&isFinite(x.b)).map(x=>[KOD[x.m],kisalt(x.n,x.m==='KA'),x.e,x.b,(x.f||[]).reduce((a,k)=>a|(FB[k]||0),0),ilceTemiz(x.ic),bas(x.il||'')]);
+  return fetch('tum_istasyonlar_birlesik.json',{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error();return r.json()}).then(j=>{
+    D=j.filter(x=>isFinite(x.e)&&isFinite(x.b)).map(x=>{
+      const ev=x.tur==='sarj';let bi;
+      if(ev){const ad=x.m===x.m.toLocaleLowerCase('tr')?bas(x.m):x.m;if(!opIdx.has(x.m)){opIdx.set(x.m,BR.length);BR.push([ad,'#10b981'])}bi=opIdx.get(x.m)}
+      else{bi=KOD[x.m];if(bi==null)return null}
+      let fl=(x.f||[]).reduce((a,k)=>a|(FB[k]||0),0);if(ev)fl|=2;
+      return [bi,kisalt(x.n,x.m==='KA'),x.e,x.b,fl,ilceTemiz(x.ic),bas(x.il||''),'',ev?1:0,/^https?:/.test(x.url||'')?x.url:'',x.kw||0];
+    }).filter(Boolean);
     D.forEach(x=>{x[7]=fold(x[1]+' '+x[5]+' '+x[6]+' '+BR[x[0]][0])});
   });
 }
@@ -142,24 +151,38 @@ function km(a,b,c,d){const dl=rad(c-a),dg=rad(d-b),h=Math.sin(dl/2)**2+Math.cos(
 function bearing(a,b,c,d){const y=Math.sin(rad(d-b))*Math.cos(rad(c)),x=Math.cos(rad(a))*Math.sin(rad(c))-Math.sin(rad(a))*Math.cos(rad(c))*Math.cos(rad(d-b));return (deg(Math.atan2(y,x))+360)%360}
 const fark=(a,b)=>{let d=((a-b+540)%360)-180;return d};
 const mesafe=d=>d<1?Math.round(d*1000)+' m':d.toFixed(1).replace('.',',')+' km';
-const S={konum:null,yon:null,hiz:null,mod:'yakin',cap:15,markalar:new Set(),oz:0,adet:30,gorunum:'liste',izle:null,secimModu:false,onceki:null,son:0};
-try{const k=JSON.parse(localStorage.getItem('akaryakit')||'{}');if(k.markalar)S.markalar=new Set(k.markalar);if(k.cap)S.cap=k.cap;if(k.oz)S.oz=k.oz}catch(e){}
-function kaydet(){try{localStorage.setItem('akaryakit',JSON.stringify({markalar:[...S.markalar],cap:S.cap,oz:S.oz}))}catch(e){}}
+const S={konum:null,yon:null,hiz:null,mod:'yakin',cap:15,markalar:new Set(),oz:0,tur:'yakit',ag:-1,adet:30,gorunum:'liste',izle:null,secimModu:false,onceki:null,son:0};
+try{const k=JSON.parse(localStorage.getItem('akaryakit')||'{}');if(k.markalar)S.markalar=new Set(k.markalar);if(k.cap)S.cap=k.cap;if(k.oz)S.oz=k.oz;if(k.tur)S.tur=k.tur}catch(e){}
+function suz(x){
+  const ev=x[8]===1;
+  if(S.tur==='yakit'&&ev)return false;
+  if(S.tur==='sarj'&&!ev)return false;
+  if(S.ag>=0){if(x[0]!==S.ag)return false}
+  else if(S.markalar.size&&(ev||!S.markalar.has(x[0])))return false;
+  return !S.oz||(x[4]&S.oz)===S.oz;
+}
+function ozEt(x){return [x[4]&1?'LPG':'',x[4]&2?'⚡':'',x[10]?x[10]+' kW':'',x[4]&16?'DC':'',x[4]&32?'AC':'',x[4]&4?'🛒':'',x[4]&8?'🚿':''].filter(Boolean).join(' ')}
+const ucret=x=>x[9]?` <a href="${esc(x[9])}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none">ücret ↗</a>`:'';
+function kaydet(){try{localStorage.setItem('akaryakit',JSON.stringify({markalar:[...S.markalar],cap:S.cap,oz:S.oz,tur:S.tur}))}catch(e){}}
 
 // Tema
 $('temaBtn').onclick=()=>{const d=document.documentElement;d.dataset.tema=(d.dataset.tema||'dark')==='dark'?'light':'dark';try{localStorage.setItem('tema',d.dataset.tema)}catch(e){}};
 
 // Marka çipleri
-function temizle(){$('kAra').value='';$('kIl').value='';ilceDoldur();S.markalar.clear();S.oz=0;S.cap=15;S.adet=30;kaydet();if(S.mod==='rota')rotaHesapla();ciz()}
+function temizle(){$('kAra').value='';$('kIl').value='';ilceDoldur();S.markalar.clear();S.oz=0;S.cap=15;S.tur='yakit';S.ag=-1;$('agSel').value='-1';S.adet=30;kaydet();if(S.mod==='rota')rotaHesapla();ciz()}
 $('temizleBtn').onclick=temizle;
 $('filtreBtn').onclick=()=>{const k=$('filtreKutu');k.style.display=k.style.display==='none'?'':'none'};
 function chipYaz(){
-  const n=S.markalar.size+[1,2,4,8].filter(b=>S.oz&b).length+(S.cap!==15?1:0);
+  const n=S.markalar.size+[1,2,4,8].filter(b=>S.oz&b).length+(S.cap!==15?1:0)+(S.tur!=='yakit'?1:0)+(S.ag>=0?1:0);
   $('filtreBtn').textContent='⚙️ Filtreler'+(n?' ('+n+' aktif)':'')+' · '+(S.cap>=9999?'Tümü':S.cap+' km');
-  $('markaChips').innerHTML='<button data-b="-1" class="'+(S.markalar.size?'':'on')+'">Hepsi</button>'+BR.map((b,i)=>`<button data-b="${i}" class="${S.markalar.has(i)?'on':''}"><span class="dot" style="background:${b[1]}"></span>${b[0]}</button>`).join('');
+  $('markaChips').innerHTML='<button data-b="-1" class="'+(S.markalar.size?'':'on')+'">Hepsi</button>'+BR.slice(0,FN).map((b,i)=>`<button data-b="${i}" class="${S.markalar.has(i)?'on':''}"><span class="dot" style="background:${b[1]}"></span>${b[0]}</button>`).join('');
+  document.querySelectorAll('#turChips button').forEach(b=>b.classList.toggle('on',b.dataset.t===S.tur));
+  $('agSel').style.display=S.tur==='yakit'?'none':'';$('markaChips').style.display=S.tur==='sarj'?'none':'';
   document.querySelectorAll('#ozChips button').forEach(b=>b.classList.toggle('on',!!(S.oz&+b.dataset.o)));
   document.querySelectorAll('#capChips button').forEach(b=>b.classList.toggle('on',+b.dataset.c===S.cap));
 }
+$('turChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.tur=b.dataset.t;if(S.tur==='yakit'){S.ag=-1;$('agSel').value='-1'}S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
+$('agSel').onchange=()=>{S.ag=+$('agSel').value;S.adet=30;chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
 $('markaChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;const i=+b.dataset.b;if(i<0)S.markalar.clear();else S.markalar.has(i)?S.markalar.delete(i):S.markalar.add(i);S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
 $('ozChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.oz^=+b.dataset.o;S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
 $('capChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.cap=+b.dataset.c;S.adet=30;kaydet();chipYaz();ciz()};
@@ -201,8 +224,7 @@ function hesapla(){
   const k=S.konum;if(!k)return[];
   const dLat=S.cap/111,dLon=S.cap/(111*Math.cos(rad(k.lat))),sonuc=[];
   for(const x of D){
-    if(S.markalar.size&&!S.markalar.has(x[0]))continue;
-    if(S.oz&&(x[4]&S.oz)!==S.oz)continue;
+    if(!suz(x))continue;
     if(S.cap<9999&&(Math.abs(x[2]-k.lat)>dLat||Math.abs(x[3]-k.lon)>dLon))continue;
     const d=km(k.lat,k.lon,x[2],x[3]);if(d>S.cap)continue;
     const br=bearing(k.lat,k.lon,x[2],x[3]);
@@ -233,10 +255,10 @@ function ciz(gps){
   if(!l.length){$('liste').innerHTML='<div class="liste"><p class="bos">Bu filtrede istasyon yok.</p><div class="btns" style="padding:0 16px 16px"><button class="ana" id="bosTemizle">✕ Filtreleri temizle</button></div></div>';$('bosTemizle').onclick=temizle;return}
   const hiz=S.hiz>10?S.hiz:null;
   let h='<div class="liste">'+l.slice(0,S.adet).map(o=>{
-    const x=o.x,b=BR[x[0]],r=o.rel!=null?o.rel:o.br,ozl=[x[4]&1?'LPG':'',x[4]&2?'⚡':'',x[4]&4?'🛒':'',x[4]&8?'🚿':''].filter(Boolean).join(' ');
+    const x=o.x,b=BR[x[0]],r=o.rel!=null?o.rel:o.br,ozl=ozEt(x);
     const dk=hiz?` · ~${Math.max(1,Math.round(o.d/hiz*60))} dk`:'';
     return`<div class="row"><div class="ok">${ok(r)}<b>${mesafe(o.d)}</b><small>${o.rel!=null?yonYazi(o.rel):''}${dk}</small></div>
-    <div class="body"><div class="nm">${esc(x[1])}</div><div class="meta"><span class="br" style="background:${b[1]}">${b[0]}</span><span>${esc([x[5],x[6]].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', '))}</span>${ozl?`<span class="tag">${ozl}</span>`:''}</div></div>
+    <div class="body"><div class="nm">${esc(x[1])}</div><div class="meta"><span class="br" style="background:${b[1]}">${b[0]}</span><span>${esc([x[5],x[6]].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', '))}</span>${ozl?`<span class="tag">${ozl}</span>`:''}${ucret(x)}</div></div>
     <a class="git" href="${gitLink(x)}" target="_blank" rel="noopener">Yol tarifi</a></div>`}).join('')+'</div>';
   if(l.length>S.adet)h+=`<button class="daha" id="dahaBtn">Daha fazla göster (${l.length-S.adet})</button>`;
   $('liste').innerHTML=h;const db=$('dahaBtn');if(db)db.onclick=()=>{S.adet+=40;ciz()};
@@ -282,8 +304,7 @@ function rotaHesapla(){
   for(const p of P){if(p[0]<a0)a0=p[0];if(p[0]>a1)a1=p[0];if(p[1]<o0)o0=p[1];if(p[1]>o1)o1=p[1]}
   const mo=kor/(111*Math.cos(rad((a0+a1)/2)))+0.01;
   for(const x of D){
-    if(S.markalar.size&&!S.markalar.has(x[0]))continue;
-    if(S.oz&&(x[4]&S.oz)!==S.oz)continue;
+    if(!suz(x))continue;
     const la=x[2],lo=x[3];
     if(la<a0-dl||la>a1+dl||lo<o0-mo||lo>o1+mo)continue;
     const kx=111.32*Math.cos(rad(la)),ky=110.57;
@@ -323,15 +344,15 @@ function rotaCiz(){
   $('durum').textContent=`🛣️ ${R.ad} · ${Math.round(R.toplam)} km · ${sureYaz(R.sure)}${ek!=null?` · kalan ${Math.round(kal)} km`:''}`;
   $('rotaBilgi').textContent=`Yolun ±${R.koridor} km'sinde ${ileri.length} istasyon${ek!=null?' (önünde)':''}.`;
   if(S.gorunum==='harita'){$('liste').style.display='none';$('harita').style.display='block';haritaCiz(ileri.slice(0,300));return}
-  const fAd=[...S.markalar].map(i=>BR[i][0]).join('/')+(S.oz&1?' LPG':'')+(S.oz&2?' şarj':'')+(S.oz&4?' market':'')+(S.oz&8?' yıkama':'');
+  const fAd=(S.ag>=0?BR[S.ag][0]:[...S.markalar].map(i=>BR[i][0]).join('/'))+(S.tur==='sarj'?' şarj noktası':'')+(S.oz&1?' LPG':'')+(S.oz&2?' şarj':'')+(S.oz&4?' market':'')+(S.oz&8?' yıkama':'');
   const uyar=(a,b)=>b-a>=GAP?`<div class="row uyr"><div class="ok" style="font-size:24px">⚠️</div><div class="body"><div class="nm">${Math.round(b-a)} km boyunca ${esc((fAd.trim()||'istasyon'))} yok</div><div class="meta">${mesafe(a)} → ${mesafe(Math.min(b,kal))} ileride</div></div></div>`:'';
   let h='<div class="liste">',onceki=0,say=0;
   for(const o of ileri){
     if(say>=S.adet)break;say++;
     h+=uyar(onceki,o.d);onceki=o.d;
-    const x=o.x,b=BR[x[0]],ozl=[x[4]&1?'LPG':'',x[4]&2?'⚡':'',x[4]&4?'🛒':'',x[4]&8?'🚿':''].filter(Boolean).join(' ');
+    const x=o.x,b=BR[x[0]],ozl=ozEt(x);
     h+=`<div class="row"><div class="ok"><b>${mesafe(o.d)}</b><small>~${sureYaz(o.d/hiz*60)}</small></div>
-    <div class="body"><div class="nm">${esc(x[1])}</div><div class="meta"><span class="br" style="background:${b[1]}">${b[0]}</span><span>yolun ${o.side}, ${mesafe(o.off)}</span>${ozl?`<span class="tag">${ozl}</span>`:''}</div></div>
+    <div class="body"><div class="nm">${esc(x[1])}</div><div class="meta"><span class="br" style="background:${b[1]}">${b[0]}</span><span>yolun ${o.side}, ${mesafe(o.off)}</span>${ozl?`<span class="tag">${ozl}</span>`:''}${ucret(x)}</div></div>
     <a class="git" href="${gitLink(x)}" target="_blank" rel="noopener">Yol tarifi</a></div>`;
   }
   if(say>=ileri.length)h+=uyar(onceki,kal);
@@ -346,7 +367,13 @@ $('koridorChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;R.
 $('rotaAcBtn').onclick=()=>{$('baslaKart').style.display='none';$('sonuc').style.display='';S.mod='rota';document.querySelectorAll('#modSeg button').forEach(x=>x.classList.toggle('on',x.dataset.m==='rota'));ciz()};
 
 // ---- Keşfet (il / ilçe / arama) ----
+function agDoldur(){
+  const say=new Map();D.forEach(x=>{if(x[8]===1)say.set(x[0],(say.get(x[0])||0)+1)});
+  const l=[...say].sort((a,b)=>b[1]-a[1]);
+  $('agSel').innerHTML='<option value="-1">Tüm şarj ağları ('+l.length+')</option>'+l.map(([i,n])=>`<option value="${i}">${esc(BR[i][0])} (${n})</option>`).join('');
+}
 function kesfetHazirla(){
+  agDoldur();
   const iller=[...new Set(D.map(x=>x[6]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
   $('kIl').innerHTML='<option value="">Tüm iller ('+iller.length+')</option>'+iller.map(i=>`<option value="${esc(i)}">${esc(i)}</option>`).join('');
 }
@@ -360,8 +387,7 @@ function kesfetHesapla(){
   const il=$('kIl').value,ic=$('kIlce').value,q=fold($('kAra').value).split(' ').filter(Boolean),k=S.konum,o=[];
   for(const x of D){
     if(il&&x[6]!==il)continue;if(ic&&x[5]!==ic)continue;
-    if(S.markalar.size&&!S.markalar.has(x[0]))continue;
-    if(S.oz&&(x[4]&S.oz)!==S.oz)continue;
+    if(!suz(x))continue;
     if(q.length&&!q.every(w=>x[7].includes(w)))continue;
     o.push({x,d:k?km(k.lat,k.lon,x[2],x[3]):null});
   }
@@ -379,9 +405,9 @@ function kesfetCiz(gps){
   $('harita').style.display='none';$('liste').style.display='';
   if(!l.length){$('liste').innerHTML='<div class="liste"><p class="bos">Bu aramada istasyon yok.</p><div class="btns" style="padding:0 16px 16px"><button class="ana" id="bosTemizle">✕ Filtreleri temizle</button></div></div>';$('bosTemizle').onclick=temizle;return}
   let h='<div class="liste">'+l.slice(0,S.adet).map(o=>{
-    const x=o.x,b=BR[x[0]],ozl=[x[4]&1?'LPG':'',x[4]&2?'⚡':'',x[4]&4?'🛒':'',x[4]&8?'🚿':''].filter(Boolean).join(' ');
+    const x=o.x,b=BR[x[0]],ozl=ozEt(x);
     return`<div class="row">${o.d!=null?`<div class="ok"><b>${mesafe(o.d)}</b></div>`:''}
-    <div class="body"><div class="nm">${esc(x[1])}</div><div class="meta"><span class="br" style="background:${b[1]}">${b[0]}</span><span>${esc([x[5],x[6]].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', '))}</span>${ozl?`<span class="tag">${ozl}</span>`:''}</div></div>
+    <div class="body"><div class="nm">${esc(x[1])}</div><div class="meta"><span class="br" style="background:${b[1]}">${b[0]}</span><span>${esc([x[5],x[6]].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(', '))}</span>${ozl?`<span class="tag">${ozl}</span>`:''}${ucret(x)}</div></div>
     <a class="git" href="${gitLink(x)}" target="_blank" rel="noopener">Yol tarifi</a></div>`}).join('')+'</div>';
   if(l.length>S.adet)h+=`<button class="daha" id="dahaBtn">Daha fazla göster (${(l.length-S.adet).toLocaleString('tr')})</button>`;
   $('liste').innerHTML=h;const db=$('dahaBtn');if(db)db.onclick=()=>{S.adet+=60;ciz()};
