@@ -9,6 +9,7 @@ Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfal�
 - **Canlı konum takibi:** Konumun sürekli izlenir, liste ilerledikçe kendini günceller.
 - **📍 Çevremde:** İstasyonları mesafeye göre, en yakından başlayarak sıralar.
 - **🧭 Önümde:** Gittiğin yönü algılar, sadece önünde kalan istasyonları gösterir. Yön, yaklaşık 30 metre ilerleyince bulunur.
+- **🛣️ Güzergâh (yol üstü radar):** Nereye gideceğini yaz, yolun ±1/2/3 km'sindeki istasyonları sırayla ve "kaç km ileride" bilgisiyle listeler. Yolun sağında mı solunda mı olduğunu da yazar. Marka veya özellik seçersen (örneğin sadece LPG), o özelliğin 60 km'den uzun süre bulunmadığı yerleri ⚠️ ile uyarır. Konum açıksa geçtiğin istasyonlar listeden düşer.
 - **Yön oku:** Her istasyonun yanındaki ok, istasyonun sana göre nerede kaldığını gösterir (önünde, sağında, solunda, arkanda).
 - **Tahmini varış:** Hızın 10 km/s'in üzerindeyse istasyona kaç dakikada varacağını yazar.
 - **Yol tarifi:** Tek dokunuşla Google Haritalar'da navigasyon başlatır.
@@ -50,6 +51,7 @@ Konum bilgin yalnızca kendi tarayıcında işlenir, hiçbir sunucuya gönderilm
 - **Veri sabittir.** Yeni açılan veya kapanan istasyonlar otomatik yansımaz. Veriyi güncellemek için sadece `istasyonlar.json` dosyasını değiştirmen yeterli, `index.html`'e dokunmak gerekmez.
 - **Çalışma saatleri yok.** İstasyonun açık olup olmadığı bilinmez.
 - **Çevrimdışıyken harita karoları gelmez.** Liste çalışır, harita görünümünde zemin görüntüsü olmaz (nokta ve istasyonlar yine de görünür).
+- **Güzergâh için internet gerekir.** Yol çizgisi OSRM, yer arama OpenStreetMap Nominatim servisinden alınır. İkisi de ücretsiz ve kişisel kullanıma uygundur, ama çok yoğun kullanımda sınır koyabilirler.
 - **İlk açılış internet ister.** Liste telefona ilk açılışta indirilir.
 - Konum özelliği sadece güvenli bağlantıda (`https`) çalışır; GitHub Pages bunu sağlar.
 

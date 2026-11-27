@@ -1,5 +1,5 @@
 // Yakınımdaki Akaryakıt — çevrimdışı önbellek
-const V='akaryakit-v1';
+const V='akaryakit-v2';
 const KABUK=['./','index.html','istasyonlar.json','manifest.webmanifest','icon-192.png','icon-512.png'];
 const DIS=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'];
 self.addEventListener('install',e=>{
