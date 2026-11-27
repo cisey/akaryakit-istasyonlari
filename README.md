@@ -1,4 +1,4 @@
-# ⛽ Yakınımdaki Akaryakıt
+# ⛽ Yakınımdaki Akaryakıt İstasyonları
 
 Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfalık bir web uygulaması. Yolda giderken "bana en yakın istasyon hangisi, hangisi önümde?" sorusunun cevabını verir.
 
