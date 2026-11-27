@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hakkında · Yakınımdaki Akaryakıt</title>
+<meta name="theme-color" content="#0b0f17">
+<link rel="icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0f17;--card:#141b29;--line:rgba(255,255,255,.1);--text:#f8fafc;--muted:#94a3b8;--accent:#38bdf8}
+html[data-tema="light"]{color-scheme:light;--bg:#f3f4f6;--card:#fff;--line:rgba(15,23,42,.12);--text:#111827;--muted:#5b6678;--accent:#0284c7}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+.kap{max-width:680px;margin:0 auto;padding:14px 16px 56px}
+a.geri{display:inline-block;color:var(--accent);font-weight:700;text-decoration:none;font-size:14px;margin-bottom:12px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+h1{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+h2{font-size:17px;font-weight:800;margin:24px 0 8px}
+p,li{font-size:14.5px}p{margin-bottom:10px}
+ul,ol{margin:0 0 10px 20px}li{margin-bottom:6px}
+code{background:var(--card);border:1px solid var(--line);padding:1px 6px;border-radius:6px;font-size:13px}
+blockquote{border-left:3px solid var(--accent);padding:6px 12px;margin:10px 0;color:var(--muted);background:var(--card);border-radius:0 10px 10px 0}
+a{color:var(--accent)}
+</style>
+<script>try{var t=localStorage.getItem('tema');if(t==='dark'||t==='light')document.documentElement.dataset.tema=t}catch(e){}</script>
+</head><body><div class="kap">
+<a class="geri" href="./">← Ana sayfa</a>
+<h1>⛽ Hakkında ve nasıl kullanılır</h1>
+<p>Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfalık bir web uygulaması. Yolda giderken "bana en yakın istasyon hangisi, hangisi önümde?" sorusunun cevabını verir.</p>
+<h2>Ne yapar?</h2>
+<ul>
+<li><strong>Canlı konum takibi:</strong> Konumun sürekli izlenir, liste ilerledikçe kendini günceller.</li>
+<li><strong>📍 Yakın:</strong> İstasyonları mesafeye göre, en yakından başlayarak sıralar.</li>
+<li><strong>🧭 Önümde:</strong> Gittiğin yönü algılar, sadece önünde kalan istasyonları gösterir. Yön, yaklaşık 30 metre ilerleyince bulunur.</li>
+<li><strong>🛣️ Güzergâh (yol üstü radar):</strong> Nereye gideceğini yaz, yolun ±1/2/3 km'sindeki istasyonları sırayla ve "kaç km ileride" bilgisiyle listeler. Yolun sağında mı solunda mı olduğunu da yazar. Marka veya özellik seçersen (örneğin sadece LPG), o özelliğin 60 km'den uzun süre bulunmadığı yerleri ⚠️ ile uyarır. Konum açıksa geçtiğin istasyonlar listeden düşer.</li>
+<li><strong>🔍 Keşfet:</strong> Konumdan bağımsız arama. İl ve ilçe seç, istasyon adı/il/ilçe/marka yaz; marka ve özellik filtreleriyle birlikte çalışır. Seçime uyan LPG / şarj / market / yıkama sayısını gösterir. Harita görünümü istasyonları kümeleyerek (yakınlaştırdıkça açılır) tüm Türkiye'yi gösterir.</li>
+<li><strong>Yön oku:</strong> Her istasyonun yanındaki ok, istasyonun sana göre nerede kaldığını gösterir (önünde, sağında, solunda, arkanda).</li>
+<li><strong>Tahmini varış:</strong> Hızın 10 km/s'in üzerindeyse istasyona kaç dakikada varacağını yazar.</li>
+<li><strong>Yol tarifi:</strong> Tek dokunuşla Google Haritalar'da navigasyon başlatır.</li>
+<li><strong>Filtreler:</strong> Marka, LPG, ⚡ şarj, 🛒 market, 🚿 yıkama ve mesafe (2 km'den "Tümü"ne). Seçimlerin sonraki açılışta hatırlanır.</li>
+<li><strong>Harita görünümü:</strong> İstasyonları marka renkleriyle haritada gösterir. Haritadan bir nokta seçerek o bölgenin çevresine de bakabilirsin.</li>
+<li><strong>Çevrimdışı çalışır ve ana ekrana eklenir (PWA):</strong> Bir kez internetle açtıktan sonra istasyon listesi telefonda saklanır. İnternet çekmeyen yerde de konumuna en yakın istasyonlar listelenir. Sayfanın üstündeki "📲 Ana ekrana ekle" düğmesiyle uygulama gibi kurulur.</li>
+<li><strong>Açık / koyu tema.</strong></li>
+</ul>
+<h2>Kapsanan markalar</h2>
+<p>Opet, Petrol Ofisi, Shell, TotalEnergies, Aytemiz, Alpet, Sunpet, M Oil, TPPD, Kadoil — toplam <strong>8.461 istasyon</strong>.</p>
+<h2>Nasıl kullanılır?</h2>
+<ol>
+<li>Siteyi aç, <strong>"📍 Canlı Konumumu Kullan"</strong> düğmesine dokun.</li>
+<li>Tarayıcı konum izni isterse <strong>izin ver</strong>.</li>
+<li>Liste otomatik gelir. Yol tarifi için istasyonun yanındaki <strong>"Yol tarifi"</strong> düğmesine dokun.</li>
+<li>Marka veya özellik seçmek için <strong>"⚙️ Filtreler"</strong> düğmesini kullan.</li>
+</ol>
+<p>Konum izni vermek istemezsen <strong>"🗺️ Haritadan Nokta Seç"</strong> ile haritada bir yere dokunarak da bakabilirsin.</p>
+<blockquote>
+<p>💡 En doğru sonuç telefondadır. Bilgisayar tarayıcıları konumu Wi-Fi üzerinden tahmin eder, bu yüzden yaklaşık bir nokta verir ve "Önümde" modu çalışmaz (hareket algılanamaz).</p>
+</blockquote>
+<h2>Gizlilik</h2>
+<p>Konum bilgin yalnızca kendi tarayıcında işlenir, hiçbir sunucuya gönderilmez ve kaydedilmez. Tarayıcıda sadece tema, seçili marka ve mesafe tercihin saklanır.</p>
+<h2>Bilinen sınırlar</h2>
+<ul>
+<li><strong>Fiyat bilgisi yok.</strong> Veride akaryakıt fiyatı bulunmadığı için sıralama sadece konuma göre yapılır.</li>
+<li><strong>Veri sabittir.</strong> Yeni açılan veya kapanan istasyonlar otomatik yansımaz. Veriyi güncellemek için sadece <code>istasyonlar.json</code> dosyasını değiştirmen yeterli, <code>index.html</code>'e dokunmak gerekmez.</li>
+<li><strong>Çalışma saatleri yok.</strong> İstasyonun açık olup olmadığı bilinmez.</li>
+<li><strong>Çevrimdışıyken harita karoları gelmez.</strong> Liste çalışır, harita görünümünde zemin görüntüsü olmaz (nokta ve istasyonlar yine de görünür).</li>
+<li><strong>Güzergâh için internet gerekir.</strong> Yol çizgisi OSRM, yer arama OpenStreetMap Nominatim servisinden alınır. İkisi de ücretsiz ve kişisel kullanıma uygundur, ama çok yoğun kullanımda sınır koyabilirler.</li>
+<li><strong>İlk açılış internet ister.</strong> Liste telefona ilk açılışta indirilir.</li>
+<li>Konum özelliği sadece güvenli bağlantıda (<code>https</code>) çalışır; GitHub Pages bunu sağlar.</li>
+</ul>
+<h2>Teknik not</h2>
+<p>Tek dosyalık, bağımlılıksız bir HTML/JavaScript uygulamasıdır. Harita için <a href="https://leafletjs.com/">Leaflet</a> ve <a href="https://www.openstreetmap.org/">OpenStreetMap</a> kullanılır. Mesafeler kuş uçuşu (haversine) hesaplanır, yani gerçek yol mesafesinden kısa çıkabilir.</p>
+</div></body></html>

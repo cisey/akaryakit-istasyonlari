@@ -1,6 +1,6 @@
 // Yakınımdaki Akaryakıt — çevrimdışı önbellek
-const V='akaryakit-v3';
-const KABUK=['./','index.html','istasyonlar.json','manifest.webmanifest','icon-192.png','icon-512.png'];
+const V='akaryakit-v4';
+const KABUK=['./','index.html','hakkinda.html','istasyonlar.json','manifest.webmanifest','icon-192.png','icon-512.png'];
 const DIS=['https://unpkg.com/leaflet@1.9.4/dist/leaflet.js','https://unpkg.com/leaflet@1.9.4/dist/leaflet.css','https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js','https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css','https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(V).then(c=>Promise.all([c.addAll(KABUK),...DIS.map(u=>c.add(u).catch(()=>{}))])).then(()=>self.skipWaiting()));
