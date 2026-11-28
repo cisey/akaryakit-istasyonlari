@@ -105,7 +105,7 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
   <select class="inp" id="agSel" style="display:none;width:100%;margin-bottom:8px"><option value="-1">Tüm şarj ağları</option></select>
   <div class="chips" id="markaChips"></div>
   <div class="chips" id="ozChips">
-    <button data-o="1">LPG</button><button data-o="2">⚡ Şarj</button><button data-o="4">🛒 Market</button><button data-o="8">🚿 Yıkama</button>
+    <button data-o="1">LPG</button><button data-o="2">⚡ Şarj</button><button data-o="4">🛒 Market</button><button data-o="8">🚿 Yıkama</button><button data-o="16">DC hızlı</button><button data-o="32">AC</button>
   </div>
   <div class="chips" id="capChips">
     <button data-c="2">2 km</button><button data-c="5">5 km</button><button data-c="15" class="on">15 km</button><button data-c="40">40 km</button><button data-c="9999">Tümü</button>
@@ -153,7 +153,7 @@ function bearing(a,b,c,d){const y=Math.sin(rad(d-b))*Math.cos(rad(c)),x=Math.cos
 const fark=(a,b)=>{let d=((a-b+540)%360)-180;return d};
 const mesafe=d=>d<1?Math.round(d*1000)+' m':d.toFixed(1).replace('.',',')+' km';
 const S={konum:null,yon:null,hiz:null,mod:'yakin',cap:15,markalar:new Set(),oz:0,tur:'yakit',ag:-1,adet:30,gorunum:'liste',izle:null,secimModu:false,onceki:null,son:0};
-try{const k=JSON.parse(localStorage.getItem('akaryakit')||'{}');if(k.markalar)S.markalar=new Set(k.markalar);if(k.cap)S.cap=k.cap;if(k.oz)S.oz=k.oz;if(k.tur)S.tur=k.tur}catch(e){}
+try{const k=JSON.parse(localStorage.getItem('akaryakit')||'{}');if(k.markalar)S.markalar=new Set(k.markalar);if(k.cap)S.cap=k.cap;if(k.oz)S.oz=k.oz;if(k.tur)S.tur=k.tur;if(k.agAd)S.agAd=k.agAd}catch(e){}
 function suz(x){
   const ev=x[8]===1;
   if(S.tur==='yakit'&&ev)return false;
@@ -164,7 +164,7 @@ function suz(x){
 }
 function ozEt(x){return [x[4]&1?'LPG':'',x[4]&2?'⚡':'',x[10]?x[10]+' kW':'',x[4]&16?'DC':'',x[4]&32?'AC':'',x[4]&4?'🛒':'',x[4]&8?'🚿':''].filter(Boolean).join(' ')}
 const ucret=x=>x[9]?` <a href="${esc(x[9])}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:700;text-decoration:none">ücret ↗</a>`:'';
-function kaydet(){try{localStorage.setItem('akaryakit',JSON.stringify({markalar:[...S.markalar],cap:S.cap,oz:S.oz,tur:S.tur}))}catch(e){}}
+function kaydet(){try{localStorage.setItem('akaryakit',JSON.stringify({markalar:[...S.markalar],cap:S.cap,oz:S.oz,tur:S.tur,agAd:S.ag>=0?BR[S.ag][0]:''}))}catch(e){}}
 
 // Tema
 $('temaBtn').onclick=()=>{const d=document.documentElement;d.dataset.tema=(d.dataset.tema||'dark')==='dark'?'light':'dark';try{localStorage.setItem('tema',d.dataset.tema)}catch(e){}};
@@ -174,16 +174,16 @@ function temizle(){$('kAra').value='';$('kIl').value='';ilceDoldur();S.markalar.
 $('temizleBtn').onclick=temizle;
 $('filtreBtn').onclick=()=>{const k=$('filtreKutu');k.style.display=k.style.display==='none'?'':'none'};
 function chipYaz(){
-  const n=S.markalar.size+[1,2,4,8].filter(b=>S.oz&b).length+(S.cap!==15?1:0)+(S.tur!=='yakit'?1:0)+(S.ag>=0?1:0);
+  const n=S.markalar.size+[1,2,4,8,16,32].filter(b=>S.oz&b).length+(S.cap!==15?1:0)+(S.tur!=='yakit'?1:0)+(S.ag>=0?1:0);
   $('filtreBtn').textContent='⚙️ Filtreler'+(n?' ('+n+' aktif)':'')+' · '+(S.cap>=9999?'Tümü':S.cap+' km');
   $('markaChips').innerHTML='<button data-b="-1" class="'+(S.markalar.size?'':'on')+'">Hepsi</button>'+BR.slice(0,FN).map((b,i)=>`<button data-b="${i}" class="${S.markalar.has(i)?'on':''}"><span class="dot" style="background:${b[1]}"></span>${b[0]}</button>`).join('');
   document.querySelectorAll('#turChips button').forEach(b=>b.classList.toggle('on',b.dataset.t===S.tur));
   $('agSel').style.display=S.tur==='yakit'?'none':'';$('markaChips').style.display=S.tur==='sarj'?'none':'';
-  document.querySelectorAll('#ozChips button').forEach(b=>b.classList.toggle('on',!!(S.oz&+b.dataset.o)));
+  document.querySelectorAll('#ozChips button').forEach(b=>{const o=+b.dataset.o;b.classList.toggle('on',!!(S.oz&o));b.style.display=(S.tur==='yakit'&&o>=16)||(S.tur==='sarj'&&(o===1||o===4||o===8))?'none':''});
   document.querySelectorAll('#capChips button').forEach(b=>b.classList.toggle('on',+b.dataset.c===S.cap));
 }
-$('turChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.tur=b.dataset.t;if(S.tur==='yakit'){S.ag=-1;$('agSel').value='-1'}S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
-$('agSel').onchange=()=>{S.ag=+$('agSel').value;S.adet=30;chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
+$('turChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.tur=b.dataset.t;if(S.tur==='yakit'){S.ag=-1;$('agSel').value='-1';S.oz&=~(16|32)}if(S.tur==='sarj')S.oz&=~(1|4|8);S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
+$('agSel').onchange=()=>{S.ag=+$('agSel').value;S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
 $('markaChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;const i=+b.dataset.b;if(i<0)S.markalar.clear();else S.markalar.has(i)?S.markalar.delete(i):S.markalar.add(i);S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
 $('ozChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.oz^=+b.dataset.o;S.adet=30;kaydet();chipYaz();if(S.mod==='rota')rotaHesapla();ciz()};
 $('capChips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.cap=+b.dataset.c;S.adet=30;kaydet();chipYaz();ciz()};
@@ -369,12 +369,16 @@ $('rotaAcBtn').onclick=()=>{$('baslaKart').style.display='none';$('sonuc').style
 
 // ---- Keşfet (il / ilçe / arama) ----
 function agDoldur(){
+  const dc=D.filter(x=>x[4]&16).length,ac=D.filter(x=>x[4]&32).length;
+  document.querySelector('#ozChips [data-o="16"]').textContent='DC hızlı ('+dc+')';document.querySelector('#ozChips [data-o="32"]').textContent='AC ('+ac+')';
   const say=new Map();D.forEach(x=>{if(x[8]===1)say.set(x[0],(say.get(x[0])||0)+1)});
   const l=[...say].sort((a,b)=>b[1]-a[1]);
   $('agSel').innerHTML='<option value="-1">Tüm şarj ağları ('+l.length+')</option>'+l.map(([i,n])=>`<option value="${i}">${esc(BR[i][0])} (${n})</option>`).join('');
 }
 function kesfetHazirla(){
   agDoldur();
+  if(S.agAd){const i=BR.findIndex((b,j)=>j>=FN&&b[0]===S.agAd);if(i>=0&&S.tur!=='yakit'){S.ag=i;$('agSel').value=String(i)}S.agAd=''}
+  chipYaz();
   const iller=[...new Set(D.map(x=>x[6]).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'tr'));
   $('kIl').innerHTML='<option value="">Tüm iller ('+iller.length+')</option>'+iller.map(i=>`<option value="${esc(i)}">${esc(i)}</option>`).join('');
 }
@@ -419,7 +423,7 @@ function kesfetHaritaCiz(l){
   if(kume)map.removeLayer(kume);
   const kumeli=typeof L.markerClusterGroup==='function',liste=kumeli?l:l.slice(0,400);
   kume=kumeli?L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:50}):L.layerGroup();
-  const ms=liste.map(o=>L.circleMarker([o.x[2],o.x[3]],{radius:7,weight:2,color:'#fff',fillColor:BR[o.x[0]][1],fillOpacity:.95,bubblingMouseEvents:false}).bindPopup(`<b>${esc(o.x[1])}</b><br>${BR[o.x[0]][0]} · ${esc([o.x[5],o.x[6]].filter(Boolean).join(', '))}${o.d!=null?' · <b>'+mesafe(o.d)+'</b>':''}<br><a href="${gitLink(o.x)}" target="_blank" rel="noopener">Yol tarifi →</a>`));
+  const ms=liste.map(o=>L.circleMarker([o.x[2],o.x[3]],{radius:7,weight:2,color:'#fff',fillColor:BR[o.x[0]][1],fillOpacity:.95,bubblingMouseEvents:false}).bindPopup(`<b>${esc(o.x[1])}</b><br>${BR[o.x[0]][0]} · ${esc([o.x[5],o.x[6]].filter(Boolean).join(', '))}${o.d!=null?' · <b>'+mesafe(o.d)+'</b>':''}${ozEt(o.x)?'<br>'+ozEt(o.x):''}${ucret(o.x)}<br><a href="${gitLink(o.x)}" target="_blank" rel="noopener">Yol tarifi →</a>`));
   if(kumeli)kume.addLayers(ms);else ms.forEach(m=>kume.addLayer(m));
   map.addLayer(kume);
   if(liste.length)map.fitBounds(L.latLngBounds(liste.map(o=>[o.x[2],o.x[3]])).pad(.1),{maxZoom:14});
@@ -443,7 +447,7 @@ function haritaCiz(l){
   if(kume&&S.mod!=='kesfet'){map.removeLayer(kume);kume=null}
   if(kat)map.removeLayer(kat);if(pin)map.removeLayer(pin);
   if(S.konum)pin=L.circleMarker([S.konum.lat,S.konum.lon],{radius:9,weight:3,color:'#fff',fillColor:'#f43f5e',fillOpacity:1}).addTo(map);
-  const ogeler=l.map(o=>L.circleMarker([o.x[2],o.x[3]],{radius:7,weight:2,color:'#fff',fillColor:BR[o.x[0]][1],fillOpacity:.95,bubblingMouseEvents:false}).bindPopup(`<b>${esc(o.x[1])}</b><br>${BR[o.x[0]][0]} · <b>${mesafe(o.d)}</b><br><a href="${gitLink(o.x)}" target="_blank" rel="noopener">Yol tarifi →</a>`));
+  const ogeler=l.map(o=>L.circleMarker([o.x[2],o.x[3]],{radius:7,weight:2,color:'#fff',fillColor:BR[o.x[0]][1],fillOpacity:.95,bubblingMouseEvents:false}).bindPopup(`<b>${esc(o.x[1])}</b><br>${BR[o.x[0]][0]} · <b>${mesafe(o.d)}</b>${ozEt(o.x)?'<br>'+ozEt(o.x):''}${ucret(o.x)}<br><a href="${gitLink(o.x)}" target="_blank" rel="noopener">Yol tarifi →</a>`));
   if(S.mod==='rota'&&R.pts)ogeler.push(L.polyline(R.pts,{color:'#38bdf8',weight:4,opacity:.85}));
   kat=L.featureGroup(ogeler).addTo(map);
   if(l.length||(S.mod==='rota'&&R.pts)){const b=kat.getBounds();if(S.konum)b.extend([S.konum.lat,S.konum.lon]);map.fitBounds(b.pad(.15),{maxZoom:15})}
@@ -462,5 +466,5 @@ veriYukle().then(()=>{
   kesfetHazirla();
   if(new URLSearchParams(location.search).get('mod')==='konum')konumIste();
   if(S.konum)ciz();
-}).catch(()=>{$('durum').textContent='İstasyon listesi yüklenemedi (istasyonlar.json). İnternet yoksa önce bir kez bağlantıyla açman gerekir.'});
+}).catch(()=>{$('durum').textContent='İstasyon listesi yüklenemedi (tum_istasyonlar_birlesik.json). İnternet yoksa önce bir kez bağlantıyla açman gerekir.'});
 </script></body></html>

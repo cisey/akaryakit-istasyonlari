@@ -66,5 +66,29 @@ for x in d:
             sayac['supheli_koordinat_silindi']+=1;continue
     yeni.append(x)
 d=yeni
+
+# Akaryakıt: ili, koordinatın düştüğü yerle uyuşmayan kayıtları düzelt.
+# İlçesi boş veya sadece "MERKEZ" olan (yani ili doğrulanamayan) kayıtların ili, en yakın 7 istasyonun çoğunluk iline çevrilir.
+# İlçesi belli olup koordinatı yine de uzak kalan kayıtlar silinmez, sadece uyarı olarak yazdırılır.
+import math,statistics
+def _km(a,b,c,e):
+    t=math.pi/180;dl=(c-a)*t;dg=(e-b)*t;h=math.sin(dl/2)**2+math.cos(a*t)*math.cos(c*t)*math.sin(dg/2)**2;return 12742*math.asin(math.sqrt(h))
+yak=[x for x in d if x.get('tur','yakit')=='yakit' and x['il']]
+byil=collections.defaultdict(list)
+for x in yak: byil[x['il']].append(x)
+supheli=[]
+for il,l in byil.items():
+    if len(l)<4: continue
+    ml=statistics.median(x['e'] for x in l);mo=statistics.median(x['b'] for x in l)
+    ds=sorted(_km(ml,mo,x['e'],x['b']) for x in l);R=max(60,2.5*ds[int(len(ds)*.9)])
+    supheli+=[x for x in l if _km(ml,mo,x['e'],x['b'])>R]
+sid={id(x) for x in supheli};guvenilir=[x for x in yak if id(x) not in sid]
+uyari=[]
+for x in supheli:
+    if x['ic'] in ('','MERKEZ'):
+        yakin=sorted(guvenilir,key=lambda y:(y['e']-x['e'])**2+(y['b']-x['b'])**2)[:7]
+        x['il']=collections.Counter(y['il'] for y in yakin).most_common(1)[0][0];x['ic']='';sayac['il_duzeltildi']+=1
+    else: uyari.append((x['il'],x['ic'],x['n'][:34],x['e'],x['b']))
+if uyari: print('Konumu şüpheli, elle bakılması gereken kayıtlar:',uyari)
 json.dump(d,open(out,'w',encoding='utf-8'),ensure_ascii=False,separators=(',',':'))
 print(dict(sayac));print('eşleşmeyenler (ilk 40):',bulunamayan.most_common(40))

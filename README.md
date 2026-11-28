@@ -1,6 +1,6 @@
 # ⛽ Yakıt & Şarj Radarı
 
-Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfalık bir web uygulaması. Yolda giderken "bana en yakın istasyon hangisi, hangisi önümde?" sorusunun cevabını verir.
+Türkiye'deki akaryakıt ve şarj istasyonlarını konumuna göre listeleyen, tek sayfalık bir web uygulaması. Yolda giderken "bana en yakın istasyon hangisi, hangisi önümde, yolumda şarj noktası var mı?" sorularının cevabını verir.
 
 **Canlı site:** https://cisey.github.io/akaryakit-istasyonlari/
 
@@ -14,7 +14,7 @@ Türkiye'deki akaryakıt istasyonlarını konumuna göre listeleyen, tek sayfal�
 - **Yön oku:** Her istasyonun yanındaki ok, istasyonun sana göre nerede kaldığını gösterir (önünde, sağında, solunda, arkanda).
 - **Tahmini varış:** Hızın 10 km/s'in üzerindeyse istasyona kaç dakikada varacağını yazar.
 - **Yol tarifi:** Tek dokunuşla Google Haritalar'da navigasyon başlatır.
-- **⚡ Şarj istasyonları:** Akaryakıt istasyonlarının yanında 170 şarj ağının (ZES, Eşarj, Trugo, WAT, Voltrun…) yaklaşık 8.500 şarj noktası da var. Filtrelerdeki "⛽ Akaryakıt / ⚡ Şarj istasyonları / Hepsi" seçimiyle hangisini görmek istediğini seçersin (varsayılan akaryakıt). Şarj seçilince "şarj ağı" listesinden tek bir ağı süzebilirsin. Veride varsa DC / AC, kW bilgisi ve ağın ücret sayfasına bağlantı görünür. Güzergâh modunda da çalışır: örneğin "Ankara'ya kadar şarj yok" uyarısı alırsın.
+- **⚡ Şarj istasyonları:** Akaryakıt istasyonlarının yanında 170 şarj ağının (ZES, Eşarj, Trugo, WAT, Voltrun…) yaklaşık 8.500 şarj noktası da var. Filtrelerdeki "⛽ Akaryakıt / ⚡ Şarj istasyonları / Hepsi" seçimiyle hangisini görmek istediğini seçersin (varsayılan akaryakıt). Şarj seçilince "şarj ağı" listesinden tek bir ağı süzebilirsin. Veride varsa DC / AC, kW bilgisi ve ağın ücret sayfasına bağlantı görünür. Şarj seçiliyken filtrelerde **DC hızlı** ve **AC** çipleri çıkar. Bu bilgi şu an sadece yaklaşık 350 noktada bulunduğu için, bu filtreleri açınca bilgisi olmayan noktalar listeden düşer. Seçtiğin şarj ağı bir sonraki açılışta hatırlanır. Güzergâh modunda da çalışır: örneğin "Ankara'ya kadar şarj yok" uyarısı alırsın.
 - **Filtreler:** Marka, LPG, ⚡ şarj, 🛒 market, 🚿 yıkama ve mesafe (2 km'den "Tümü"ne). Seçimlerin sonraki açılışta hatırlanır.
 - **Harita görünümü:** İstasyonları marka renkleriyle haritada gösterir. Haritadan bir nokta seçerek o bölgenin çevresine de bakabilirsin.
 - **Çevrimdışı çalışır ve ana ekrana eklenir (PWA):** Bir kez internetle açtıktan sonra istasyon listesi telefonda saklanır. İnternet çekmeyen yerde de konumuna en yakın istasyonlar listelenir. Sayfanın üstündeki "📲 Ana ekrana ekle" düğmesiyle uygulama gibi kurulur.
