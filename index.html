@@ -66,7 +66,6 @@ html:not([data-tema="light"]) #map .leaflet-tile-pane{filter:grayscale(85%) inve
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 </head><body><div class="kap">
 <div class="ust"><h1>⛽ Yakıt &amp; Şarj Radarı</h1><button class="pill" id="temaBtn">☀️</button></div>
-<button class="pill on" id="kurBtn" style="display:none;margin-bottom:10px">📲 Ana ekrana ekle</button>
 <div class="durum" id="durum">Konumun aranıyor…</div>
 
 <div class="kart" id="baslaKart">
@@ -453,11 +452,7 @@ function haritaCiz(l){
   if(l.length||(S.mod==='rota'&&R.pts)){const b=kat.getBounds();if(S.konum)b.extend([S.konum.lat,S.konum.lon]);map.fitBounds(b.pad(.15),{maxZoom:15})}
   else if(S.konum)map.setView([S.konum.lat,S.konum.lon],12);
 }
-// PWA: kurulum düğmesi + çevrimdışı önbellek
-let kurOlay=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();kurOlay=e;$('kurBtn').style.display=''});
-$('kurBtn').onclick=()=>{if(!kurOlay)return;kurOlay.prompt();kurOlay.userChoice.finally(()=>{kurOlay=null;$('kurBtn').style.display='none'})};
-window.addEventListener('appinstalled',()=>{$('kurBtn').style.display='none'});
+// PWA: çevrimdışı önbellek
 if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 chipYaz();
 $('durum').textContent='İstasyon listesi yükleniyor…';
